@@ -153,15 +153,18 @@ class App extends React.Component {
 
 		this.isATokenGroupPresent(tmp);
 
-		const tokenGroups = tmp.split(";");
-
-
-		if(tokenGroups.length>1) {
+		const stringGroups = tmp.split(";");
+		if(stringGroups.length>1) {
+			let tokenGroups = [];
 			let tokens = [];
-			for(let tmpString of tokenGroups) {
+			for(let tmpString of stringGroups) {
 				if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
-					tokens = tokens.concat(tmpString.split(","));
+					let currentTokens = tmpString.split(",");
+					tokens = tokens.concat(currentTokens);
+					tokenGroups.push(currentTokens);
+					// tokens.filter(token=> token!== "");
 					console.log("!!", tokens);
+					console.log("tokengroups", tokenGroups);
 				}
 
 			}
@@ -207,7 +210,7 @@ class App extends React.Component {
 					<Dagre rankDir="BT" directed={true} />
 				</Sigma>
 				<div>
-					<input	type="text" onInput={this.handleInput} />
+					<input type="text" onInput={this.handleInput} />
 				</div>
 				</div>
 		);
