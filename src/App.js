@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.scss';
-import {RandomizeNodePositions, RelativeSize, Sigma, ForceAtlas2} from 'react-sigma';
-import ForceLink from 'react-sigma/lib/ForceLink'
+import {RelativeSize, Sigma} from 'react-sigma';
 import Dagre from "react-sigma/es/Dagre";
 
 class App extends React.Component {
@@ -13,45 +12,40 @@ class App extends React.Component {
 	myGraph = {
 		nodes: [
 			{
-				"id": "n0",
+				"id": "n1",
 				"label": "AT",
 
 				"size": 3
 			},
 			{
-				"id": "n1",
+				"id": "n2",
 				"label": "AC",
 
 				"size": 3
 			},
 			{
-				"id": "n2",
+				"id": "n3",
 				"label": "AA",
 				"size": 3
 			},
 			{
-				"id": "n3",
+				"id": "n4",
 				"label": "TG",
 				"size": 3
 			},
 			{
-				"id": "n4",
+				"id": "n5",
 				"label": "TC",
 				"size": 3
 			},
 			{
-				"id": "n5",
+				"id": "n6",
 				"label": "ATC",
 				"size": 3
 			},
 			{
-				"id": "n6",
-				"label": "TGC",
-				"size": 3
-			},
-			{
 				"id": "n7",
-				"label": "ATGC",
+				"label": "TGC",
 				"size": 3
 			},
 			{
@@ -69,110 +63,130 @@ class App extends React.Component {
 				"label": "ATGC",
 				"size": 3
 			},
+			{
+				"id": "n11",
+				"label": "ATGC",
+				"size": 3
+			},
 		],
 		edges: [
 			{
-				"id": "e0",
-				"source": "n0",
-				"target": "n5"
-			},
-			{
 				"id": "e1",
 				"source": "n1",
-				"target": "n5"
+				"target": "n6"
 			},
 			{
 				"id": "e2",
 				"source": "n2",
-				"target": "n5"
-			},
-			{
-				"id": "e3",
-				"source": "n3",
 				"target": "n6"
 			},
-			{
-				"id": "e4",
-				"source": "n4",
-				"target": "n6"
-			},
-			{
-				"id": "e5",
-				"source": "n5",
-				"target": "n7"
-			},
-			{
-				"id": "e6",
-				"source": "n6",
-				"target": "n7"
-			},
-			{
-				"id": "e7",
-				"source": "n8",
-				"target": "n7"
-			},
-			{
-				"id": "e8",
-				"source": "n9",
-				"target": "n7"
-			},
-			{
-				"id": "e9",
-				"source": "n10",
-				"target": "n7"
-			}
 		]
 	};
 
 
+componentDidUpdate(prevProps, prevState, snapshot) {
 
-	componentDidMount() {
+	console.log("prevstate vs currentstate", [prevState, this.state]);
 
-	}
-
-	tokenizer = (tmpString) => {
-
-	};
-
+}
 
 	isATokenGroupPresent = (tmp) => {
-		if(tmp.indexOf(";") === -1) {
+		if (tmp.indexOf(";") === -1) {
 			return false;
 		}
 	};
 
-	state ={
+	state = {
 		nodes: [],
 		edges: []
 	};
 	handleInput = (event) => {
-
 		// console.log(event.target.value);
-
 		let tmp = event.target.value;
-
 		this.isATokenGroupPresent(tmp);
-
 		const stringGroups = tmp.split(";");
-		if(stringGroups.length>1) {
+		if (stringGroups.length > 1) {
 			let tokenGroups = [];
 			let tokens = [];
-			for(let tmpString of stringGroups) {
+
+			let chiefWithTokens = [];
+
+			let chiefNodes = [];
+
+			let chiefNodesIds= [];
+
+
+			for (let tmpString of stringGroups) {
 				if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
-					let currentTokens = tmpString.split(",");
-					tokens = tokens.concat(currentTokens);
-					tokenGroups.push(currentTokens);
+					let currentTokenGroup = tmpString.split(",");
+					tokens = tokens.concat(currentTokenGroup);
+					tokenGroups.push(currentTokenGroup);
 					// tokens.filter(token=> token!== "");
 					console.log("!!", tokens);
 					console.log("tokengroups", tokenGroups);
+
+					const chiefSet = new Set();
+					let chiefToken = "";
+
+					const filteredCtg = currentTokenGroup;
+
+					filteredCtg
+					.forEach(x => x.split("")
+					.forEach(y => chiefSet.add(y)));
+
+					for (let value of chiefSet.values()) {
+						chiefToken = chiefToken + value;
+					}
+					console.log("!!!chief", chiefToken);
+					chiefWithTokens.push([chiefToken, filteredCtg]);
+					console.log(">>>", chiefWithTokens);
 				}
-
 			}
+			this.setState((prevState, props) => {
+				let nodes = [];
+				let edges = [];
 
+				for (let cwt of chiefWithTokens) {
+					for (let token of cwt[1]) {
+						nodes.push({
+							id: `n${nodes.length+1}`,
+							label: token,
+							size: 3
+						})
+					}
+					nodes.push({
+						id: `n${nodes.length+1}`,
+						label: cwt[0],
+						size: 3
+					});
+
+					const chiefNode = nodes.slice(nodes.length-1)[0];
+
+					chiefNodes.push(chiefNode);
+
+					chiefNodesIds.push(chiefNode.id);
+
+					console.log(";)", chiefNode);
+
+					for (let token of cwt[1]) {
+						if(chiefNodesIds.indexOf(`n${edges.length+1}`)>=0) {
+							continue;
+						}
+
+						edges.push({
+							id: `e${edges.length+1}`,
+							source: `n${edges.length+1}`,
+							target: chiefNode.id
+						});
+
+					}
+
+
+				}
+				return {nodes, edges}
+			})
 
 		}
-
-
 
 
 	};
@@ -181,7 +195,7 @@ class App extends React.Component {
 		return (
 			<div className="App">
 
-				<Sigma renderer="webgl"  style={{maxWidth:"inherit", height:"800px"}}  graph={this.myGraph} settings={{
+				<Sigma renderer="canvas"   key={Math.floor(Math.random() * 1000+1+ Date.now())}  style={{maxWidth: "inherit", height: "800px"}} graph={this.state} settings={{
 					drawEdges: true,
 					clone: false,
 					// edgeLabelSize: 'proportional',
@@ -191,7 +205,7 @@ class App extends React.Component {
 					scalingMode: 'inside',
 					minEdgeSize: 1,
 					maxEdgeSize: 1,
-					labelThreshold:0,
+					labelThreshold: 0,
 					defaultNodeColor: '#ec5148'
 
 					// worker: true,
@@ -207,12 +221,12 @@ class App extends React.Component {
 					{/*<ForceLink background randomizeFactor={1.618} alignNodeSiblings={false} nodeSiblingsScale={0} nodeSiblingsAngleMin={0.1} adjustSizes={false} randomize="globally"/>*/}
 					<RelativeSize initialSize={8}/>
 					{/*<ForceAtlas2/>*/}
-					<Dagre rankDir="BT" directed={true} />
+					<Dagre rankDir="BT" directed={true}/>
 				</Sigma>
 				<div>
-					<input type="text" onInput={this.handleInput} />
+					<input type="text" onInput={this.handleInput}/>
 				</div>
-				</div>
+			</div>
 		);
 	}
 }
