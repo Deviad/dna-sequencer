@@ -5,6 +5,10 @@ body {height: 100%;
 .App {
   text-align: center;
   margin-top: 20rem;
+  //display: flex;
+  //align-content: center;
+  //align-items: center;
+  //justify-content: center;
   & > div {
     display:flex;
     flex-direction: row;

@@ -14,38 +14,112 @@ class App extends React.Component {
 		nodes: [
 			{
 				"id": "n0",
-				"label": "A node",
+				"label": "AT",
 
 				"size": 3
 			},
 			{
 				"id": "n1",
-				"label": "Another node",
+				"label": "AC",
 
 				"size": 3
 			},
 			{
 				"id": "n2",
-				"label": "And a last one",
-
+				"label": "AA",
 				"size": 3
-			}
+			},
+			{
+				"id": "n3",
+				"label": "TG",
+				"size": 3
+			},
+			{
+				"id": "n4",
+				"label": "TC",
+				"size": 3
+			},
+			{
+				"id": "n5",
+				"label": "ATC",
+				"size": 3
+			},
+			{
+				"id": "n6",
+				"label": "TGC",
+				"size": 3
+			},
+			{
+				"id": "n7",
+				"label": "ATGC",
+				"size": 3
+			},
+			{
+				"id": "n8",
+				"label": "ATGC",
+				"size": 3
+			},
+			{
+				"id": "n9",
+				"label": "ATGC",
+				"size": 3
+			},
+			{
+				"id": "n10",
+				"label": "ATGC",
+				"size": 3
+			},
 		],
 		edges: [
 			{
 				"id": "e0",
 				"source": "n0",
-				"target": "n1"
+				"target": "n5"
 			},
 			{
 				"id": "e1",
 				"source": "n1",
-				"target": "n2"
+				"target": "n5"
 			},
 			{
 				"id": "e2",
 				"source": "n2",
-				"target": "n0"
+				"target": "n5"
+			},
+			{
+				"id": "e3",
+				"source": "n3",
+				"target": "n6"
+			},
+			{
+				"id": "e4",
+				"source": "n4",
+				"target": "n6"
+			},
+			{
+				"id": "e5",
+				"source": "n5",
+				"target": "n7"
+			},
+			{
+				"id": "e6",
+				"source": "n6",
+				"target": "n7"
+			},
+			{
+				"id": "e7",
+				"source": "n8",
+				"target": "n7"
+			},
+			{
+				"id": "e8",
+				"source": "n9",
+				"target": "n7"
+			},
+			{
+				"id": "e9",
+				"source": "n10",
+				"target": "n7"
 			}
 		]
 	};
@@ -56,7 +130,49 @@ class App extends React.Component {
 
 	}
 
+	tokenizer = (tmpString) => {
 
+	};
+
+
+	isATokenGroupPresent = (tmp) => {
+		if(tmp.indexOf(";") === -1) {
+			return false;
+		}
+	};
+
+	state ={
+		nodes: [],
+		edges: []
+	};
+	handleInput = (event) => {
+
+		// console.log(event.target.value);
+
+		let tmp = event.target.value;
+
+		this.isATokenGroupPresent(tmp);
+
+		const tokenGroups = tmp.split(";");
+
+
+		if(tokenGroups.length>1) {
+			let tokens = [];
+			for(let tmpString of tokenGroups) {
+				if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
+					tokens = tokens.concat(tmpString.split(","));
+					console.log("!!", tokens);
+				}
+
+			}
+
+
+		}
+
+
+
+
+	};
 
 	render() {
 		return (
@@ -70,8 +186,8 @@ class App extends React.Component {
 					autoRescale: true,
 					// minArrowSize: 5,
 					scalingMode: 'inside',
-					minEdgeSize: 2,
-					maxEdgeSize: 2,
+					minEdgeSize: 1,
+					maxEdgeSize: 1,
 					labelThreshold:0,
 					defaultNodeColor: '#ec5148'
 
@@ -88,9 +204,12 @@ class App extends React.Component {
 					{/*<ForceLink background randomizeFactor={1.618} alignNodeSiblings={false} nodeSiblingsScale={0} nodeSiblingsAngleMin={0.1} adjustSizes={false} randomize="globally"/>*/}
 					<RelativeSize initialSize={8}/>
 					{/*<ForceAtlas2/>*/}
-					<Dagre rankDir="TB" directed={true} />
+					<Dagre rankDir="BT" directed={true} />
 				</Sigma>
-			</div>
+				<div>
+					<input	type="text" onInput={this.handleInput} />
+				</div>
+				</div>
 		);
 	}
 }
