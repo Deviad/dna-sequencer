@@ -169,26 +169,45 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 					console.log(";)", chiefNode);
 
 					for (let token of cwt[1]) {
-						if(chiefNodesIds.indexOf(`n${edges.length+1}`)>=0) {
-							continue;
-						}
-
 						edges.push({
 							id: `e${edges.length+1}`,
 							source: `n${edges.length+1}`,
 							target: chiefNode.id
 						});
-
 					}
+					for(let cn of chiefNodes) {
+						edges = edges.filter(x => x.source !== cn.id);
+					}
+
+					// const masterChiefSet = new Set();
+					// for(let cn of chiefNodes) {
+					// 	masterChiefSet.add(cn);
+					// }
+					//
+					// let masterChiefToken = "";
+					// for(let str of masterChiefSet) {
+					// 	masterChiefToken = masterChiefToken + str;
+					// }
+					//
+					// nodes.push({
+					// 	id: `n${nodes.length+1}`,
+					// 	label: masterChiefToken,
+					// 	size: 3
+					// });
+					//
+					// for(let cn of chiefNodes) {
+					// 	edges.push({
+					// 		id: `e${edges.length+1}`,
+					// 		source: `n${cn.id}`,
+					// 		target: nodes.slice(nodes.length-1)[0].id
+					// 	});
+					// }
 
 
 				}
 				return {nodes, edges}
 			})
-
 		}
-
-
 	};
 
 	render() {
