@@ -166,7 +166,7 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 
 					chiefNodesIds.push(chiefNode.id);
 
-					console.log(";)", chiefNode);
+					// console.log(";)", chiefNode);
 
 					for (let token of cwt[1]) {
 						edges.push({
@@ -179,16 +179,21 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 						edges = edges.filter(x => x.source !== cn.id);
 					}
 
-					// const masterChiefSet = new Set();
-					// for(let cn of chiefNodes) {
-					// 	masterChiefSet.add(cn);
-					// }
-					//
-					// let masterChiefToken = "";
-					// for(let str of masterChiefSet) {
-					// 	masterChiefToken = masterChiefToken + str;
-					// }
-					//
+					const masterChiefSet = new Set();
+					let masterChiefToken = "";
+
+					for(let cn of chiefNodes) {
+
+						for (let char of cn.label.split("")) {
+							masterChiefSet.add(char);
+						}
+					}
+					for (let c of masterChiefSet.values()) {
+						masterChiefToken = masterChiefToken + c;
+					}
+
+					console.log("something", masterChiefToken);
+
 					// nodes.push({
 					// 	id: `n${nodes.length+1}`,
 					// 	label: masterChiefToken,
@@ -196,14 +201,13 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 					// });
 					//
 					// for(let cn of chiefNodes) {
+					//
 					// 	edges.push({
 					// 		id: `e${edges.length+1}`,
-					// 		source: `n${cn.id}`,
-					// 		target: nodes.slice(nodes.length-1)[0].id
+					// 		source: `${cn.id}`,
+					// 		target: `n${nodes.length+1}`
 					// 	});
 					// }
-
-
 				}
 				return {nodes, edges}
 			})
