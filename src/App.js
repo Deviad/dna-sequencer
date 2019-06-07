@@ -84,11 +84,11 @@ class App extends React.Component {
 	};
 
 
-componentDidUpdate(prevProps, prevState, snapshot) {
+	componentDidUpdate(prevProps, prevState, snapshot) {
 
-	console.log("prevstate vs currentstate", [prevState, this.state]);
+		console.log("prevstate vs currentstate", [prevState, this.state]);
 
-}
+	}
 
 	isATokenGroupPresent = (tmp) => {
 		if (tmp.indexOf(";") === -1) {
@@ -105,7 +105,6 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 		let tmp = event.target.value;
 		this.isATokenGroupPresent(tmp);
 		const stringGroups = tmp.split(";").filter(Boolean);
-		if (stringGroups.length > 0) {
 			let tokenGroups = [];
 			let tokens = [];
 
@@ -113,7 +112,10 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 
 			let chiefNodes = [];
 
-			let chiefNodesIds= [];
+			let chiefNodesIds = [];
+
+			let nodes = [];
+			let edges = [];
 
 
 			for (let tmpString of stringGroups) {
@@ -121,7 +123,7 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 					let currentTokenGroup = tmpString.split(",").filter(Boolean);
 					tokens = tokens.concat(currentTokenGroup);
 					tokenGroups.push(currentTokenGroup);
-					// tokens.filter(token=> token!== "");
+
 					console.log("!!", tokens);
 					console.log("tokengroups", tokenGroups);
 
@@ -134,91 +136,93 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 					.forEach(x => x.split("").filter(Boolean)
 					.forEach(y => chiefSet.add(y)));
 
-					for (let value of chiefSet.values()) {
-						chiefToken = chiefToken + value;
+					console.log("filteredCtg", filteredCtg);
+
+					if(currentTokenGroup.length>1) {
+						for (let value of chiefSet.values()) {
+							chiefToken = chiefToken + value;
+						}
+						console.log("!!!chief", chiefToken);
+						chiefWithTokens.push([chiefToken, filteredCtg]);
+						console.log(">>>", chiefWithTokens);
 					}
-					console.log("!!!chief", chiefToken);
-					chiefWithTokens.push([chiefToken, filteredCtg]);
-					console.log(">>>", chiefWithTokens);
 				}
 			}
-			this.setState((prevState, props) => {
-				let nodes = [];
-				let edges = [];
 
-				for (let cwt of chiefWithTokens) {
-					for (let token of cwt[1]) {
-						nodes.push({
-							id: `n${nodes.length+1}`,
-							label: token,
-							size: 3
-						})
-					}
+			for (let cwt of chiefWithTokens) {
+				for (let token of cwt[1]) {
 					nodes.push({
-						id: `n${nodes.length+1}`,
-						label: cwt[0],
+						id: `n${nodes.length + 1}`,
+						label: token,
 						size: 3
-					});
-
-					const chiefNode = nodes.slice(nodes.length-1)[0];
-
-					chiefNodes.push(chiefNode);
-
-					chiefNodesIds.push(chiefNode.id);
-
-					// console.log(";)", chiefNode);
-
-					for (let token of cwt[1]) {
-						edges.push({
-							id: `e${edges.length+1}`,
-							source: `n${edges.length+1}`,
-							target: chiefNode.id
-						});
-					}
-					for(let cn of chiefNodes) {
-						edges = edges.filter(x => x.source !== cn.id);
-					}
-
-					const masterChiefSet = new Set();
-					let masterChiefToken = "";
-
-					for(let cn of chiefNodes) {
-
-						for (let char of cn.label.split("").filter(Boolean)) {
-							masterChiefSet.add(char);
-						}
-					}
-					for (let c of masterChiefSet.values()) {
-						masterChiefToken = masterChiefToken + c;
-					}
-
-					console.log("something", masterChiefToken);
-
-					// nodes.push({
-					// 	id: `n${nodes.length+1}`,
-					// 	label: masterChiefToken,
-					// 	size: 3
-					// });
-					//
-					// for(let cn of chiefNodes) {
-					//
-					// 	edges.push({
-					// 		id: `e${edges.length+1}`,
-					// 		source: `${cn.id}`,
-					// 		target: `n${nodes.length+1}`
-					// 	});
-					// }
+					})
 				}
-				return {nodes, edges}
-			})
-		}
+				nodes.push({
+					id: `n${nodes.length + 1}`,
+					label: cwt[0],
+					size: 3
+				});
+
+				const chiefNode = nodes.slice(nodes.length - 1)[0];
+
+				chiefNodes.push(chiefNode);
+
+				chiefNodesIds.push(chiefNode.id);
+
+				// console.log(";)", chiefNode);
+
+				for (let token of cwt[1]) {
+					edges.push({
+						id: `e${edges.length + 1}`,
+						source: `n${edges.length + 1}`,
+						target: chiefNode.id
+					});
+				}
+				for (let cn of chiefNodes) {
+					edges = edges.filter(x => x.source !== cn.id);
+				}
+
+				const masterChiefSet = new Set();
+				let masterChiefToken = "";
+
+				for (let cn of chiefNodes) {
+
+					for (let char of cn.label.split("").filter(Boolean)) {
+						masterChiefSet.add(char);
+					}
+				}
+				for (let c of masterChiefSet.values()) {
+					masterChiefToken = masterChiefToken + c;
+				}
+
+				console.log("something", masterChiefToken);
+
+				// nodes.push({
+				// 	id: `n${nodes.length+1}`,
+				// 	label: masterChiefToken,
+				// 	size: 3
+				// });
+				//
+				// for(let cn of chiefNodes) {
+				//
+				// 	edges.push({
+				// 		id: `e${edges.length+1}`,
+				// 		source: `${cn.id}`,
+				// 		target: `n${nodes.length+1}`
+				// 	});
+				// }
+			}
+			this.setState((prevState, props) => (
+				{nodes, edges}
+			));
 	};
 
 	render() {
 		return (
 			<div className="App">
 
-				<Sigma renderer="canvas"   key={Math.floor(Math.random() * 1000+1+ Date.now())}  style={{maxWidth: "inherit", height: "800px"}} graph={this.state} settings={{
+				<Sigma renderer="canvas" key={Math.floor(Math.random() * 1000 + 1 + Date.now())}
+							 style={{maxWidth: "inherit", height: "800px"}} graph={this.state} settings={{
 					drawEdges: true,
 					clone: false,
 					// edgeLabelSize: 'proportional',
