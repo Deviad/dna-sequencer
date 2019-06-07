@@ -104,8 +104,8 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 		// console.log(event.target.value);
 		let tmp = event.target.value;
 		this.isATokenGroupPresent(tmp);
-		const stringGroups = tmp.split(";");
-		if (stringGroups.length > 1) {
+		const stringGroups = tmp.split(";").filter(Boolean);
+		if (stringGroups.length > 0) {
 			let tokenGroups = [];
 			let tokens = [];
 
@@ -118,7 +118,7 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 
 			for (let tmpString of stringGroups) {
 				if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
-					let currentTokenGroup = tmpString.split(",");
+					let currentTokenGroup = tmpString.split(",").filter(Boolean);
 					tokens = tokens.concat(currentTokenGroup);
 					tokenGroups.push(currentTokenGroup);
 					// tokens.filter(token=> token!== "");
@@ -131,7 +131,7 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 					const filteredCtg = currentTokenGroup;
 
 					filteredCtg
-					.forEach(x => x.split("")
+					.forEach(x => x.split("").filter(Boolean)
 					.forEach(y => chiefSet.add(y)));
 
 					for (let value of chiefSet.values()) {
@@ -184,7 +184,7 @@ componentDidUpdate(prevProps, prevState, snapshot) {
 
 					for(let cn of chiefNodes) {
 
-						for (let char of cn.label.split("")) {
+						for (let char of cn.label.split("").filter(Boolean)) {
 							masterChiefSet.add(char);
 						}
 					}
