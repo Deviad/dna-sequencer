@@ -9,85 +9,8 @@ class App extends React.Component {
 		super(props);
 	}
 
-	myGraph = {
-		nodes: [
-			{
-				"id": "n1",
-				"label": "AT",
-
-				"size": 3
-			},
-			{
-				"id": "n2",
-				"label": "AC",
-
-				"size": 3
-			},
-			{
-				"id": "n3",
-				"label": "AA",
-				"size": 3
-			},
-			{
-				"id": "n4",
-				"label": "TG",
-				"size": 3
-			},
-			{
-				"id": "n5",
-				"label": "TC",
-				"size": 3
-			},
-			{
-				"id": "n6",
-				"label": "ATC",
-				"size": 3
-			},
-			{
-				"id": "n7",
-				"label": "TGC",
-				"size": 3
-			},
-			{
-				"id": "n8",
-				"label": "ATGC",
-				"size": 3
-			},
-			{
-				"id": "n9",
-				"label": "ATGC",
-				"size": 3
-			},
-			{
-				"id": "n10",
-				"label": "ATGC",
-				"size": 3
-			},
-			{
-				"id": "n11",
-				"label": "ATGC",
-				"size": 3
-			},
-		],
-		edges: [
-			{
-				"id": "e1",
-				"source": "n1",
-				"target": "n6"
-			},
-			{
-				"id": "e2",
-				"source": "n2",
-				"target": "n6"
-			},
-		]
-	};
-
-
 	componentDidUpdate(prevProps, prevState, snapshot) {
-
 		console.log("prevstate vs currentstate", [prevState, this.state]);
-
 	}
 
 	isATokenGroupPresent = (tmp) => {
@@ -100,121 +23,135 @@ class App extends React.Component {
 		nodes: [],
 		edges: []
 	};
+
+
+	fillchiefWIthTokensArray = ({tmpString, tokens, tokenGroups, chiefWithTokens}) => {
+		if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
+			let currentTokenGroup = tmpString.split(",").filter(Boolean);
+			tokens = tokens.concat(currentTokenGroup);
+			tokenGroups.push(currentTokenGroup);
+
+			console.log("!!", tokens);
+			console.log("tokengroups", tokenGroups);
+
+			const chiefSet = new Set();
+			let chiefToken = "";
+
+			const filteredCtg = currentTokenGroup;
+
+			filteredCtg
+			.forEach(x => x.split("").filter(Boolean)
+			.forEach(y => chiefSet.add(y)));
+
+			console.log("filteredCtg", filteredCtg);
+
+			if (currentTokenGroup.length > 1) {
+				for (let value of chiefSet.values()) {
+					chiefToken = chiefToken + value;
+				}
+				// console.log("!!!chief", chiefToken);
+				chiefWithTokens.push([chiefToken, filteredCtg]);
+				console.log(">>>", chiefWithTokens);
+			}
+		}
+	};
+
+  currentGroupofNodes = (chiefPositions, nodes) => {
+		let result = [];
+		if (chiefPositions.length === 1) {
+			result = nodes.slice(0, chiefPositions[chiefPositions.length - 1]);
+		} else if(chiefPositions.length > 1) {
+			result = nodes.slice(chiefPositions[chiefPositions.length - 2], chiefPositions[chiefPositions.length - 1]);
+		}
+
+		console.log("result", result);
+		return result;
+
+
+	};
 	handleInput = (event) => {
 		// console.log(event.target.value);
 		let tmp = event.target.value;
 		this.isATokenGroupPresent(tmp);
 		const stringGroups = tmp.split(";").filter(Boolean);
-			let tokenGroups = [];
-			let tokens = [];
-
-			let chiefWithTokens = [];
-
-			let chiefNodes = [];
-
-			let chiefNodesIds = [];
-
-			let nodes = [];
-			let edges = [];
-
-
-			for (let tmpString of stringGroups) {
-				if (tmpString !== "" && tmpString.indexOf(",") >= 0) {
-					let currentTokenGroup = tmpString.split(",").filter(Boolean);
-					tokens = tokens.concat(currentTokenGroup);
-					tokenGroups.push(currentTokenGroup);
-
-					console.log("!!", tokens);
-					console.log("tokengroups", tokenGroups);
-
-					const chiefSet = new Set();
-					let chiefToken = "";
-
-					const filteredCtg = currentTokenGroup;
-
-					filteredCtg
-					.forEach(x => x.split("").filter(Boolean)
-					.forEach(y => chiefSet.add(y)));
-
-					console.log("filteredCtg", filteredCtg);
-
-					if(currentTokenGroup.length>1) {
-						for (let value of chiefSet.values()) {
-							chiefToken = chiefToken + value;
-						}
-						console.log("!!!chief", chiefToken);
-						chiefWithTokens.push([chiefToken, filteredCtg]);
-						console.log(">>>", chiefWithTokens);
-					}
-				}
-			}
-
-			for (let cwt of chiefWithTokens) {
-				for (let token of cwt[1]) {
-					nodes.push({
-						id: `n${nodes.length + 1}`,
-						label: token,
-						size: 3
-					})
-				}
+		let tokenGroups = [];
+		let tokens = [];
+		let chiefWithTokens = [];
+		let chiefNodes = [];
+		let chiefNodesIds = [];
+		let nodes = [];
+		let edges = [];
+		let chiefPositions = [];
+		for (let tmpString of stringGroups) {
+			this.fillchiefWIthTokensArray({tmpString, tokens, tokenGroups, chiefWithTokens})
+		}
+		for (let cwt of chiefWithTokens) {
+			for (let token of cwt[1]) {
 				nodes.push({
 					id: `n${nodes.length + 1}`,
-					label: cwt[0],
+					label: token,
 					size: 3
+				})
+			}
+			nodes.push({
+				id: `n${nodes.length + 1}`,
+				label: cwt[0],
+				size: 3
+			});
+			const chiefNode = nodes.slice(nodes.length - 1)[0];
+			chiefNodesIds.push(chiefNode.id);
+			chiefNodes.push(chiefNode);
+			chiefPositions.push(nodes.indexOf(chiefNode));
+			console.log("edges", edges);
+			for (let node of this.currentGroupofNodes(chiefPositions, nodes)) {
+				if (chiefNodesIds.indexOf(node.id) !== -1) {
+					continue;
+				}
+				edges.push({
+					id: `e${edges.length + 1}`,
+					source: `${node.id}`,
+					target: chiefNode.id
 				});
+			}
 
-				const chiefNode = nodes.slice(nodes.length - 1)[0];
+			const chiefTokenAggregateSet = new Set();
+			let chiefTokenAggregateLabel = "";
 
-				chiefNodes.push(chiefNode);
+			if(chiefNodesIds.length>1) {
 
-				chiefNodesIds.push(chiefNode.id);
+				for (let cn of chiefNodes) {
+					cn.label.split("").forEach(x=> chiefTokenAggregateSet.add(x));
+				}
 
-				// console.log(";)", chiefNode);
+				for (let char of chiefTokenAggregateSet.values()) {
+					chiefTokenAggregateLabel = chiefTokenAggregateLabel + char;
+				}
 
-				for (let token of cwt[1]) {
+				const target = {
+					id: `n${nodes.length + 1}`,
+					label: chiefTokenAggregateLabel,
+					size: 3
+				};
+
+				nodes.push(target);
+
+
+				for(let node of nodes ) {
+					if(chiefNodesIds.indexOf(node.id) === -1) {
+						continue;
+					}
 					edges.push({
 						id: `e${edges.length + 1}`,
-						source: `n${edges.length + 1}`,
-						target: chiefNode.id
+						source: `${node.id}`,
+						target: target.id
 					});
 				}
-				for (let cn of chiefNodes) {
-					edges = edges.filter(x => x.source !== cn.id);
-				}
-
-				const masterChiefSet = new Set();
-				let masterChiefToken = "";
-
-				for (let cn of chiefNodes) {
-
-					for (let char of cn.label.split("").filter(Boolean)) {
-						masterChiefSet.add(char);
-					}
-				}
-				for (let c of masterChiefSet.values()) {
-					masterChiefToken = masterChiefToken + c;
-				}
-
-				console.log("something", masterChiefToken);
-
-				// nodes.push({
-				// 	id: `n${nodes.length+1}`,
-				// 	label: masterChiefToken,
-				// 	size: 3
-				// });
-				//
-				// for(let cn of chiefNodes) {
-				//
-				// 	edges.push({
-				// 		id: `e${edges.length+1}`,
-				// 		source: `${cn.id}`,
-				// 		target: `n${nodes.length+1}`
-				// 	});
-				// }
 			}
-			this.setState((prevState, props) => (
-				{nodes, edges}
-			));
+		}
+
+		this.setState((prevState, props) => (
+			{nodes, edges}
+		));
 	};
 
 	render() {
